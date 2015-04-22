@@ -123,6 +123,7 @@ func (t *TemplateResource) createStageFile() error {
 
 	tplFuncMap["GetDir"] = t.Dirs.Get
 	tplFuncMap["MapDir"] = mapNodes
+	tplFuncMap["Replace"] = strings.Replace
 	tmpl := template.Must(template.New(path.Base(t.Src)).Funcs(tplFuncMap).ParseFiles(t.Src))
 	if err = tmpl.Execute(temp, t.Vars); err != nil {
 		return err
