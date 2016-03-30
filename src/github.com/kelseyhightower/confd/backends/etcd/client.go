@@ -2,9 +2,26 @@ package etcd
 
 import (
 	"time"
+	"net/url"
 
 	goetcd "github.com/coreos/go-etcd/etcd"
 )
+
+// prependScheme adds http:// to the front of URLs if no scheme is provided.
+func prependSchemeToMachines(machines []string) []string {
+	fixedmachines := make([]string, 0)
+	for _, machine := range machines {
+		u, err := url.Parse(machine)
+		if err != nil {
+			panic(err)
+		}
+		if u.Scheme == "" {
+			u.Scheme = "http"
+		}
+		fixedmachines = append(fixedmachines, u.String())
+	}
+	return fixedmachines
+}
 
 // Client is a wrapper around the etcd client
 type Client struct {
@@ -16,6 +33,7 @@ type Client struct {
 func NewEtcdClient(machines []string, cert, key string, caCert string) (*Client, error) {
 	var c *goetcd.Client
 	var err error
+	machines = prependSchemeToMachines(machines)
 	if cert != "" && key != "" {
 		c, err = goetcd.NewTLSClient(machines, cert, key, caCert)
 		if err != nil {
